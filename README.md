@@ -1,99 +1,155 @@
-# Domain-Adaptation-and-Unpaired-Image-to--Image-Translation-using-CycleGAN
-🎨 CycleGAN Implementation (Unpaired Image-to-Image Translation)
-📌 Overview
+🧠 CycleGAN for Unpaired Image-to-Image Translation
+Generative AI Assignment 03 – Question 3
+📌 Project Overview
 
-This project implements a CycleGAN (Cycle-Consistent Generative Adversarial Network) for performing image-to-image translation without paired data. Unlike traditional supervised models, CycleGAN learns mappings between two domains using unpaired datasets.
+This project implements a CycleGAN (Cycle-Consistent Generative Adversarial Network) to perform unpaired image-to-image translation between two domains:
 
-Example tasks include:
+✏️ Sketch → Photo
+📷 Photo → Sketch
 
-Horse ↔ Zebra
-Summer ↔ Winter
-Monet Style ↔ Real Images
-🚀 Features
-✅ Unpaired image-to-image translation
-✅ Two generators and two discriminators
-✅ Cycle consistency loss
-✅ Identity loss for color preservation
-✅ Training visualization and results
-🧠 Model Architecture
+Unlike traditional supervised models, CycleGAN learns mappings without paired datasets, ensuring structural consistency using cycle consistency loss.
 
-CycleGAN consists of:
+🎯 Objectives
+Learn domain translation without paired data
+Preserve structural information across transformations
+Generate realistic outputs using adversarial learning
+Ensure reversibility using cycle consistency
+🗂️ Dataset
 
-🔹 Generators
-G: X → Y
-F: Y → X
-🔹 Discriminators
-Dx: Distinguishes real vs fake images in domain X
-Dy: Distinguishes real vs fake images in domain Y
-⚙️ Loss Functions
+We used the following datasets as required:
+
+TU-Berlin Sketch Dataset (Sketch Domain)
+Sketchy Dataset (Sketch + Photo)
+Google QuickDraw Dataset (Optional for augmentation)
+
+📌 All datasets were:
+
+Resized to 128 × 128
+Normalized to [-1, 1]
+Loaded using separate DataLoaders for each domain
+🏗️ Model Architecture
+🔁 Generators (ResNet-Based)
+Generator	Task
+G_AB	Sketch → Photo
+G_BA	Photo → Sketch
+Architecture: ResNet Generator
+ResNet Blocks: 6 blocks (optimized for Kaggle GPU)
+Activation: ReLU / Tanh
+Goal: Learn bidirectional mappings
+🕵️ Discriminators (PatchGAN)
+Discriminator	Domain
+D_A	Sketch
+D_B	Photo
+Uses PatchGAN
+Classifies image patches instead of full image
+Improves texture-level realism
+⚙️ Training Details
+🔧 Hyperparameters
+Parameter	Value
+Optimizer	Adam
+Learning Rate	0.0002
+Betas	(0.5, 0.999)
+Batch Size	4–8
+Image Size	128 × 128
+📉 Loss Functions
 Adversarial Loss
-Makes generated images realistic
+Ensures generated images look realistic
 Cycle Consistency Loss
-
-Ensures:
-
-X → Y → X ≈ X
-Y → X → Y ≈ Y
+Enforces:
+Sketch → Photo → Sketch ≈ Original Sketch
+Photo → Sketch → Photo ≈ Original Photo
 Identity Loss
-Preserves color and structure
-🛠️ Technologies Used
-Python 🐍
-PyTorch 🔥
-NumPy
-Matplotlib
-Jupyter Notebook
-📂 Project Structure
-AI_ASS03_CycleGAN.ipynb   # Main notebook
-README.md                 # Project documentation
-▶️ How to Run
-1. Clone the repository
-git clone <your-repo-link>
-cd <repo-folder>
-2. Install dependencies
-pip install torch torchvision matplotlib numpy
-3. Run the notebook
-jupyter notebook
-
-Open:
-
-AI_ASS03_CycleGAN.ipynb
-📊 Training Process
-Load unpaired datasets (Domain X and Y)
-Train generators and discriminators alternately
-Optimize using:
+Preserves color/composition when input already belongs to target domain
+🔄 Training Pipeline
+Load unpaired datasets (Sketch & Photo)
+Forward Pass:
+Sketch → Photo → Reconstructed Sketch
+Photo → Sketch → Reconstructed Photo
+Compute:
 Adversarial Loss
 Cycle Loss
 Identity Loss
-🖼️ Results
+Update:
+Generators
+Discriminators
+Save checkpoints every few epochs
+⚡ Optimization Techniques
 
-The model learns to:
+To efficiently train on Kaggle T4 ×2 GPUs:
 
-Convert images from one domain to another
-Preserve structure while changing style
+✅ Mixed Precision Training (torch.cuda.amp)
+✅ Reduced ResNet blocks (6 instead of 9)
+✅ Small batch size (4–8)
+✅ Dataset subset usage
+✅ Frequent checkpointing
+📊 Results & Visualization
 
-(👉 Add your generated images here for better presentation)
+The model generates:
 
-⚠️ Challenges
-Mode collapse
-Training instability
-High computational cost
-💡 Improvements
-Use WGAN-GP for stability
-Add attention mechanisms
-Use larger datasets
-Tune hyperparameters
-📚 References
-Original CycleGAN Paper:
-Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks
-👩‍💻 Author
+✔️ Sketch → Realistic Photo
+✔️ Photo → Clean Sketch
+✔️ Reconstructed Images (Cycle Output)
+🔍 Visualization Includes:
+Input Image
+Translated Output
+Reconstructed Image
+📈 Evaluation Metrics
+SSIM (Structural Similarity Index)
+PSNR (Peak Signal-to-Noise Ratio)
+Visual comparison (qualitative analysis)
+🚀 Application (Deployment)
 
+A simple Gradio / Streamlit app is built to:
+
+Upload image (Sketch or Photo)
+Perform domain translation
+Display real-time results
+📁 Project Structure
+CycleGAN/
+│── data/
+│── models/
+│   ├── generator.py
+│   ├── discriminator.py
+│── training/
+│   ├── train.py
+│   ├── losses.py
+│── utils/
+│   ├── dataloader.py
+│   ├── visualization.py
+│── app/
+│   ├── streamlit_app.py
+│── checkpoints/
+│── results/
+│── README.md
+🧪 How to Run
+# Clone repository
+git clone <repo-link>
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Train model
+python train.py
+
+# Run app
+streamlit run app/streamlit_app.py
+📌 Key Learnings
+CycleGAN removes dependency on paired datasets
+Cycle consistency is crucial for stable training
+PatchGAN improves texture-level realism
+Training GANs requires careful balancing
+⚠️ Challenges Faced
+Mode instability during early training
+High GPU memory usage
+Maintaining balance between generators and discriminators
+👥 Contributors
 Bushra Abad
-FAST NUCES – Computer Science
-
-⭐ Tip
-
-For best results:
-
-Train on GPU (Kaggle / Colab)
-Use normalized datasets
-Train for more epochs
+[Partner Name]
+📎 Submission Links
+🔗 GitHub Repo: [Add link]
+✍️ Medium Blog: [Add link]
+💼 LinkedIn Post: [Add link]
+📚 References
+CycleGAN Paper (Zhu et al., 2017)
+PyTorch Documentation
+Kaggle Datasets
